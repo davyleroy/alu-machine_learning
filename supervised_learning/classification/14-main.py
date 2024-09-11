@@ -16,6 +16,7 @@ np.random.seed(0)
 nn = NN(X_train.shape[0], 3)
 A, cost = nn.train(X_train, Y_train, iterations=100)
 accuracy = np.sum(A == Y_train) / Y_train.shape[1] * 100
+
 print("Train cost:", cost)
 print("Train accuracy: {}%".format(accuracy))
 A, cost = nn.evaluate(X_dev, Y_dev)
