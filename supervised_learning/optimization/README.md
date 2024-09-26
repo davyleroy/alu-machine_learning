@@ -44,3 +44,13 @@ return x
 optimal_x = gradient_descent(x_start=10, learning_rate=0.1, num_iterations=100)
 print(f"Optimal x: {optimal_x}")
 ```
+
+## Conclusion
+
+Optimization is a fundamental component of building effective machine learning models. Understanding and implementing various optimization techniques can lead to better performance and more reliable predictions. For further reading, consider exploring advanced topics such as second-order methods and optimization in deep learning.
+
+## References
+
+- [Understanding Gradient Descent](https://www.ibm.com/topics/gradient-descent)
+- [Adam Optimizer Explained](https://machinelearningmastery.com/adam-optimization-algorithm-for-deep-learning/)
+- [Hyperparameter Tuning Techniques](https://www.run.ai/guides/hyperparameter-tuning#:~:text=Hyperparameter%20tuning%20is%20the%20process%20of)
