@@ -47,7 +47,7 @@ print(f"Optimal x: {optimal_x}")
 
 ## Conclusion
 
-Optimization is a fundamental component of building effective machine learning models. Understanding and implementing various optimization techniques can lead to better performance and more reliable predictions. For further reading, consider exploring advanced topics such as second-order methods and optimization in deep learning. Have fun in the process
+Optimization is a fundamental component of building effective machine learning models. Understanding and implementing various optimization techniques can lead to better performance and more reliable predictions. For further reading, consider exploring advanced topics such as second-order methods and optimization in deep learning.
 
 ## References
 
