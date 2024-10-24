@@ -1,59 +1,22 @@
 #!/usr/bin/env python3
-'''
-Launch frequency
-'''
-
-
+"""Pipeline Api"""
 import requests
-from collections import defaultdict
-
-
-def get_launches_per_rocket():
-    '''
-    Displays the number of launches per rocket
-    '''
-    launches_url = 'https://api.spacexdata.com/v4/launches'
-    rockets_url = 'https://api.spacexdata.com/v4/rockets'
-
-    try:
-        # Fetch all launches
-        launches_response = requests.get(launches_url)
-        launches_response.raise_for_status()
-        launches = launches_response.json()
-
-        # Count launches per rocket
-        launch_count = defaultdict(int)
-        for launch in launches:
-            rocket_id = launch['rocket']
-            launch_count[rocket_id] += 1
-
-        # Fetch rocket details
-        rockets_response = requests.get(rockets_url)
-        rockets_response.raise_for_status()
-        rockets = rockets_response.json()
-
-        rocket_names = {rocket['id']: rocket['name'] for rocket in rockets}
-
-        # Prepare a list of tuples (rocket_name, count)
-        rocket_launches = [
-            (rocket_names[rocket_id], count)
-            for rocket_id, count in launch_count.items()
-            ]
-
-        # Sort by number of launches (descending),
-        # then by rocket name (ascending)
-        rocket_launches.sort(key=lambda x: (-x[1], x[0]))
-
-        # Print results
-        for rocket, count in rocket_launches:
-            print("{}: {}".format(rocket, count))
-
-    except requests.RequestException as e:
-        print(
-            'An error occurred while making an API request: {}'.format(e))
-    except Exception as err:
-        print('A general error occurred: {}'.format(err))
 
 
 if __name__ == '__main__':
-    get_launches_per_rocket()
+    """pipeline api"""
+    url = "https://api.spacexdata.com/v4/launches"
+    r = requests.get(url)
+    rocket_dict = {"5e9d0d95eda69955f709d1eb": 0}
+
+    for launch in r.json():
+        if launch["rocket"] in rocket_dict:
+            rocket_dict[launch["rocket"]] += 1
+        else:
+            rocket_dict[launch["rocket"]] = 1
+    for key, value in sorted(rocket_dict.items(),
+                             key=lambda kv: kv[1], reverse=True):
+        rurl = "https://api.spacexdata.com/v4/rockets/" + key
+        req = requests.get(rurl)
+
+        print(req.json()["name"] + ": " + str(value))
