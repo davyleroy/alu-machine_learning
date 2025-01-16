@@ -1,1 +1,2 @@
-Neural Style Transefer: take an image and paint it in a style of another image while keeping the content of the formal image.
+# 0x0C-neural_style_transfer
+This directory contains work with neural style transfer
