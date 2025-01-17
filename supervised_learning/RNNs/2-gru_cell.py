@@ -1,99 +1,86 @@
 #!/usr/bin/env python3
-"""
-This module contains the GRUCell class.
-"""
+'''
+    Script that defines a class GRUCell
+    GRUCell that represents a gated recurrent unit
+'''
+
 
 import numpy as np
 
 
-class BidirectionalCell:
-    """
-    This class represents a bidirectional cell of an RNN.
-    """
+class GRUCell:
+    '''
+        Class GRUCell that represents a gated recurrent unit
+
+        parameters:
+            i: dimensionality of the data
+            h: dimensionality of the hidden state
+            o: dimensionality of the outputs
+    '''
+
     def __init__(self, i, h, o):
-        """
-        Constructor for the BidirectionalCell class.
+        '''
+            Class constructor
+        '''
 
-        Args:
-            i (int): Dimensionality of the data.
-            h (int): Dimensionality of the hidden states.
-            o (int): Dimensionality of the outputs.
-        """
-        # Weights and biases for the forward direction
-        self.Whf = np.random.normal(size=(i + h, h))
-        self.bhf = np.zeros((1, h))
-
-        # Weights and biases for the backward direction
-        self.Whb = np.random.normal(size=(i + h, h))
-        self.bhb = np.zeros((1, h))
-
-        # Weights and biases for the output
-        self.Wy = np.random.normal(size=(2 * h, o))
+        self.Wz = np.random.normal(size=(h + i, h))
+        self.Wr = np.random.normal(size=(h + i, h))
+        self.Wh = np.random.normal(size=(h + i, h))
+        self.Wy = np.random.normal(size=(h, o))
+        self.bz = np.zeros((1, h))
+        self.br = np.zeros((1, h))
+        self.bh = np.zeros((1, h))
         self.by = np.zeros((1, o))
 
+    def softmax(self, x):
+        """
+        Performs the softmax function
+
+        parameters:
+            x: the value to perform softmax on to generate output of cell
+
+        return:
+            softmax of x
+        """
+        e_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+        softmax = e_x / e_x.sum(axis=1, keepdims=True)
+        return softmax
+
+    def sigmoid(self, x):
+        """
+        Performs the sigmoid function
+
+        parameters:
+            x: the value to perform sigmoid on
+
+        return:
+            sigmoid of x
+        """
+        sigmoid = 1 / (1 + np.exp(-x))
+        return sigmoid
+
     def forward(self, h_prev, x_t):
-        """
-        Performs forward propagation for one time step in
-        the forward direction.
+        '''
+            Function that performs forward propagation
 
-        Args:
-            h_prev (numpy.ndarray): Previous hidden state
-            of shape (m, h).
-            x_t (numpy.ndarray): Data input for the current time
-            step of shape (m, i).
+            parameters:
+                h_prev: contains the previous hidden state
+                x_t: contains the data input of the cell
 
-        Returns:
-            h_next (numpy.ndarray): The next hidden state.
-        """
-        concat_input = np.concatenate((h_prev, x_t), axis=1)
-        h_next = np.tanh(np.dot(concat_input, self.Whf) + self.bhf)
-        return h_next
+            return:
+                h_next: next hidden state
+                y: output of the cell
+        '''
 
-    def backward(self, h_next, x_t):
-        """
-        Performs backward propagation for one time step in
-        the backward direction.
+        concatenation1 = np.concatenate((h_prev, x_t), axis=1)
+        z_gate = self.sigmoid(np.matmul(concatenation1, self.Wz) + self.bz)
+        r_gate = self.sigmoid(np.matmul(concatenation1, self.Wr) + self.br)
 
-        Args:
-            h_next (numpy.ndarray): Next hidden state of shape (m, h).
-            x_t (numpy.ndarray): Data input for the current time step
-            of shape (m, i).
+        concatenation2 = np.concatenate((r_gate * h_prev, x_t), axis=1)
+        h_next = np.tanh(np.matmul(concatenation2, self.Wh) + self.bh)
+        h_next *= z_gate
+        h_next += (1 - z_gate) * h_prev
 
-        Returns:
-            h_prev (numpy.ndarray): The previous hidden state.
-        """
-        concat_input = np.concatenate((h_next, x_t), axis=1)
-        h_prev = np.tanh(np.dot(concat_input, self.Whb) + self.bhb)
-        return h_prev
+        y = self.softmax(np.matmul(h_next, self.Wy) + self.by)
 
-    def softmax(self, z):
-        """
-        Applies the softmax function to each element in z.
-
-        Args:
-            z (numpy.ndarray): Input array of shape (t, m, o).
-
-        Returns:
-            numpy.ndarray: Softmax-activated output of the same shape as z.
-        """
-        exp_z = np.exp(z - np.max(z, axis=-1, keepdims=True))
-        return exp_z / exp_z.sum(axis=-1, keepdims=True)
-
-    def output(self, H):
-        """
-        Calculates all outputs for the RNN.
-
-        Args:
-            H (numpy.ndarray): Array of shape (t, m, 2 * h) that contains the
-            concatenated hidden states from both directions, excluding their
-            initialized states.
-
-        Returns:
-            Y (numpy.ndarray): The outputs of the RNN.
-        """
-        # Compute the linear transformation
-        Y_linear = np.dot(H, self.Wy) + self.by
-        # Apply softmax to get output probabilities
-        Y = self.softmax(Y_linear)
-        return Y
-        
+        return h_next, y
