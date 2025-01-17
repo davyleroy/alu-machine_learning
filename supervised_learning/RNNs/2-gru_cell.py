@@ -92,8 +92,7 @@ class BidirectionalCell:
             Y (numpy.ndarray): The outputs of the RNN.
         """
         # Compute the linear transformation
-        Y_linear = np.dot(H, self.Wy) + self.by
-        
+        Y_linear = np.dot(H, self.Wy) + self.by        
         # Apply softmax to get output probabilities
         Y = self.softmax(Y_linear)
         return Y
